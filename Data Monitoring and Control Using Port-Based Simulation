@@ -1,0 +1,33 @@
+section .data
+    sensor_value db 50    ; Simulated sensor value
+    motor_status db 0
+    alarm_status db 0
+
+section .text
+global _start
+
+_start:
+    ; Read sensor value
+    mov al, [sensor_value]
+    
+    cmp al, 80
+    jg trigger_alarm       ; If sensor > 80, jump to alarm
+    
+    cmp al, 30
+    jl stop_motor          ; If sensor < 30, stop motor
+    
+    turn_on_motor:
+    mov [motor_status], 1  ; Motor ON
+    jmp done
+    
+stop_motor:
+    mov [motor_status], 0  ; Motor OFF
+    jmp done
+    
+trigger_alarm:
+    mov [alarm_status], 1  ; Alarm ON
+    
+done:
+    ; Exit system call
+    mov eax, 1
+    int 0x80
