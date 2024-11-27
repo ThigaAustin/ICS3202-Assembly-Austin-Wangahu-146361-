@@ -1,0 +1,28 @@
+section .text
+global _start
+
+_start:
+    ; Assume input is 5
+    mov eax, 5           ; Number to calculate factorial
+    call factorial       ; Call factorial subroutine
+    
+    ; Exit system call
+    mov eax, 1
+    int 0x80
+
+factorial:
+    push ebp
+    mov ebp, esp
+    push eax
+    cmp eax, 1
+    je end_factorial      ; if eax == 1, return 1
+    
+    ; Recursive factorial calculation
+    dec eax
+    call factorial
+    pop ebx               ; Restore ebx to access previous value
+    mul ebx               ; eax = eax * ebx
+    
+end_factorial:
+    pop ebp
+    ret
