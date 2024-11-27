@@ -1,0 +1,65 @@
+// Program description: 1. Prompt for a number.
+                        2. Classify the number:
+                        3. "POSITIVE" if greater than 0.
+                        4. "NEGATIVE" if less than 0.
+                        5. "ZERO" if equal to 0.//
+section .data
+    prompt db "Enter a number: ", 0
+    pos_msg db "POSITIVE", 0
+    neg_msg db "NEGATIVE", 0
+    zero_msg db "ZERO", 0
+
+section .bss
+    input resb 4
+
+section .text
+global _start
+
+_start:
+    ; Print prompt
+    mov eax, 4           ; sys_write
+    mov ebx, 1           ; file descriptor (stdout)
+    mov ecx, prompt      ; message address
+    mov edx, 15          ; message length
+    int 0x80
+    
+    ; Get user input
+    mov eax, 3           ; sys_read
+    mov ebx, 0           ; file descriptor (stdin)
+    mov ecx, input       ; store in input buffer
+    mov edx, 4           ; read 4 bytes
+    int 0x80
+    
+    ; Convert input to integer
+    ; Assume input is stored in register `eax`
+    call string_to_int
+    ; Check value of `eax`
+    
+    cmp eax, 0
+    je zero_case          ; Jump if zero
+    jl neg_case           ; Jump if less than zero
+    
+pos_case:
+    ; Handle positive case
+    mov ecx, pos_msg
+    jmp print_message     ; Unconditional jump
+
+neg_case:
+    ; Handle negative case
+    mov ecx, neg_msg
+    jmp print_message     ; Unconditional jump
+
+zero_case:
+    ; Handle zero case
+    mov ecx, zero_msg
+
+print_message:
+    mov eax, 4           ; sys_write
+    mov ebx, 1           ; stdout
+    mov edx, 7           ; length of message
+    int 0x80
+
+exit:
+    mov eax, 1           ; sys_exit
+    xor ebx, ebx         ; exit code 0
+    int 0x80
